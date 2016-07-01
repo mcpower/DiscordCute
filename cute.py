@@ -3,7 +3,8 @@ import asyncio
 import praw
 import datetime
 
-TOKEN = open("token.txt").read().strip()
+with open("token.txt") as token_file:
+    TOKEN = token_file.read().strip()
 
 r = praw.Reddit(user_agent="DiscordCute v0.1")
 subreddit = r.get_subreddit("aww")
