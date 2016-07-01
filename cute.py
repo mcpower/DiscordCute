@@ -13,12 +13,14 @@ loop = asyncio.get_event_loop()
 approved_channels = set()
 
 
-async def send_cute(channel):
+@asyncio.coroutine
+def send_cute(channel):
     submission = subreddit.get_random_submission()
-    await client.send_message(channel, submission.title + "\n" + submission.url)
+    yield from client.send_message(channel, submission.title + "\n" + submission.url)
 
 
-async def schedule_cute():
+@asyncio.coroutine
+def schedule_cute():
     today = datetime.datetime.utcnow()
     next_time = today.replace(hour=19, minute=0, second=0, microsecond=0)
     delta = datetime.timedelta(days=1)
@@ -29,14 +31,15 @@ async def schedule_cute():
         seconds = (next_time - datetime.datetime.utcnow()).total_seconds()
         next_time += delta
         print("Sleeping for", seconds, "seconds.")
-        await asyncio.sleep(seconds)
+        yield from asyncio.sleep(seconds)
         print("Woke up! Sending!")
         for channel in approved_channels:
-            await send_cute(channel)
+            yield from send_cute(channel)
 
 
 @client.event
-async def on_ready():
+@asyncio.coroutine
+def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
@@ -52,12 +55,13 @@ async def on_ready():
     loop.create_task(schedule_cute())
 
 @client.event
-async def on_message(message):
+@asyncio.coroutine
+def on_message(message):
     if message.channel not in approved_channels:
         return
 
     if message.content.startswith('!cute'):
-        await send_cute(message.channel)
+        yield from send_cute(message.channel)
 
 try:
     loop.run_until_complete(client.login(TOKEN))
