@@ -70,10 +70,7 @@ def on_message(message):
         return
 
     if message.content.startswith('!cute'):
-        subreddits = "+".join(message.content.split()[1:])
-        if not subreddits:
-            subreddits = "aww"
-        yield from send_cute(message.channel, subreddits)
+        yield from send_cute(message.channel)
 
 try:
     loop.run_until_complete(client.login(TOKEN))
