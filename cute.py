@@ -11,6 +11,7 @@ client = discord.Client()
 loop = asyncio.get_event_loop()
 
 approved_channels = set()
+DISALLOWED_HOSTS = {"youtube.com", "youtu.be"}
 
 
 @asyncio.coroutine
@@ -18,6 +19,9 @@ def send_cute(channel, subreddit="aww"):
     yield from client.send_typing(channel)
     try:
         submission = r.get_random_submission(subreddit=subreddit)
+        while any(host in submission.title for host in DISALLOWED_HOSTS):
+            submission = r.get_random_submission(subreddit=subreddit)
+
         message = submission.title + "\n" + submission.url
     except praw.errors.InvalidSubreddit:
         message = "Invalid subreddit."
