@@ -16,6 +16,7 @@ approved_channels = set()
 
 @asyncio.coroutine
 def send_cute(channel):
+    yield from client.send_typing(channel)
     submission = subreddit.get_random_submission()
     yield from client.send_message(channel, submission.title + "\n" + submission.url)
 
