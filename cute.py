@@ -7,7 +7,6 @@ with open("token.txt") as token_file:
     TOKEN = token_file.read().strip()
 
 r = praw.Reddit(user_agent="DiscordCute v0.1")
-subreddit = r.get_subreddit("aww")
 client = discord.Client()
 loop = asyncio.get_event_loop()
 
@@ -15,10 +14,14 @@ approved_channels = set()
 
 
 @asyncio.coroutine
-def send_cute(channel):
+def send_cute(channel, subreddit="aww"):
     yield from client.send_typing(channel)
-    submission = subreddit.get_random_submission()
-    yield from client.send_message(channel, submission.title + "\n" + submission.url)
+    try:
+        submission = r.get_random_submission(subreddit=subreddit)
+        message = submission.title + "\n" + submission.url
+    except praw.errors.InvalidSubreddit:
+        message = "Invalid subreddit."
+    yield from client.send_message(channel, message)
 
 
 @asyncio.coroutine
@@ -63,7 +66,10 @@ def on_message(message):
         return
 
     if message.content.startswith('!cute'):
-        yield from send_cute(message.channel)
+        subreddits = "+".join(message.content.split()[1:])
+        if not subreddits:
+            subreddits = "aww"
+        yield from send_cute(message.channel, subreddits)
 
 try:
     loop.run_until_complete(client.login(TOKEN))
