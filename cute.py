@@ -19,7 +19,7 @@ def send_cute(channel, subreddit="aww"):
     yield from client.send_typing(channel)
     try:
         submission = r.get_random_submission(subreddit=subreddit)
-        while any(host in submission.title for host in DISALLOWED_HOSTS):
+        while any(host in submission.url for host in DISALLOWED_HOSTS):
             submission = r.get_random_submission(subreddit=subreddit)
 
         message = submission.title + "\n" + submission.url
